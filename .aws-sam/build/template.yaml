@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lambda test
+Globals:
+  Api:
+    Name:
+      Fn::Sub: api-${AWS::StackName}
+    TracingEnabled: true
+    Cors:
+      AllowOrigin: '''*'''
+      AllowMethods: '''*'''
+      AllowHeaders: '''*'''
+Resources:
+  UserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.9
+      MemorySize: 128
+      Timeout: 360
+      FunctionName:
+        Fn::Sub: users-${AWS::StackName}
+      Description:
+        Fn::Sub: users
+      CodeUri: UserFunction
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          POSTGRES_HOST: database-1.cruo4uy427c0.us-east-1.rds.amazonaws.com
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_PORT: 5432
+      Events:
+        getUser:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: get
+        createUser:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: post
+        updateUser:
+          Type: Api
+          Properties:
+            Path: /users/{id}
+            Method: patch
+    Metadata:
+      SamResourceId: UserFunction
